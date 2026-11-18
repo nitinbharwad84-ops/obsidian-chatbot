@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useEffect, useMemo } from 'react'
-import { Plus, MessageSquare, Trash2, LogOut, Menu, X, ShieldAlert } from 'lucide-react'
+import { Plus, MessageSquare, Trash2, LogOut, Menu, X, ShieldAlert, Search } from 'lucide-react'
 import { createClient } from '@/lib/supabase'
 import { useRouter, useParams } from 'next/navigation'
 import { Conversation } from '@/types/database'
@@ -11,6 +11,7 @@ import Link from 'next/link'
 export default function Sidebar() {
   const [conversations, setConversations] = useState<Conversation[]>([])
   const [isMobileOpen, setIsMobileOpen] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
   const [user, setUser] = useState<any>(null)
   
   const supabase = useMemo(() => createClient(), [])
@@ -110,10 +111,25 @@ export default function Sidebar() {
             New Chat
           </button>
 
+          {/* Conversation search */}
+          {user && (
+            <label className="mt-6 flex items-center gap-2 rounded-xl border border-[#32457c]/20 bg-[#0a1839]/50 px-3 py-2.5 text-[#96a9e6] focus-within:border-[#96a9e6]/50">
+              <Search size={15} aria-hidden="true" />
+              <input
+                value={searchQuery}
+                onChange={(event) => setSearchQuery(event.target.value)}
+                placeholder="Search conversations"
+                aria-label="Search conversations"
+                className="min-w-0 flex-1 bg-transparent text-sm text-white outline-none placeholder:text-[#96a9e6]/50"
+              />
+              {searchQuery && <button type="button" aria-label="Clear search" onClick={() => setSearchQuery('')} className="text-xs hover:text-white">Clear</button>}
+            </label>
+          )}
+
           {/* Chat List */}
-          <div className="mt-8 flex-1 overflow-y-auto space-y-2 scrollbar-hide">
+          <div className="mt-4 flex-1 overflow-y-auto space-y-2 scrollbar-hide">
             {user ? (
-              conversations.map((chat) => (
+              conversations.filter((chat) => chat.title.toLowerCase().includes(searchQuery.toLowerCase())).map((chat) => (
                 <div 
                   key={chat.id}
                   onClick={() => {

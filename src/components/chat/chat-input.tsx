@@ -35,7 +35,8 @@ export default function ChatInput({ onSend, onModelChange, disabled }: ChatInput
     setInput('')
   }
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.nativeEvent.isComposing || e.keyCode === 229) return
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault()
       handleSend()
@@ -48,14 +49,16 @@ export default function ChatInput({ onSend, onModelChange, disabled }: ChatInput
   }
 
   return (
-    <div className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-[#070d1f] via-[#070d1f] to-transparent pt-10 pb-8 px-4">
-      <div className="mx-auto max-w-3xl space-y-4">
+    <div className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-[#070d1f] via-[#070d1f] to-transparent px-4 pb-5 pt-10 sm:pb-7">
+      <div className="mx-auto max-w-3xl space-y-3">
         {/* Model Selector */}
-        <div className="flex justify-center gap-2">
+        <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide" role="group" aria-label="Choose AI model">
           {MODELS.map((model) => (
             <button
               key={model.id}
+              type="button"
               onClick={() => handleModelSelect(model.id)}
+              aria-pressed={selectedModel === model.id}
               className={cn(
                 "rounded-full px-3 py-1 text-xs font-medium transition-all border",
                 selectedModel === model.id 
@@ -72,6 +75,7 @@ export default function ChatInput({ onSend, onModelChange, disabled }: ChatInput
         <div className="relative flex items-center rounded-2xl bg-[#0a1839]/80 p-2 shadow-2xl ring-1 ring-[#32457c]/30 backdrop-blur-xl">
           <textarea
             ref={textareaRef}
+            aria-label="Message Obsidian AI"
             rows={1}
             value={input}
             onChange={(e) => setInput(e.target.value)}
@@ -80,11 +84,14 @@ export default function ChatInput({ onSend, onModelChange, disabled }: ChatInput
             className="flex-1 max-h-48 resize-none bg-transparent px-4 py-3 text-[#dfe4ff] placeholder:text-[#96a9e6]/50 focus:outline-none sm:text-sm"
           />
           <button
+            type="button"
             onClick={handleSend}
             disabled={!input.trim() || disabled}
-            className="rounded-xl bg-gradient-to-r from-[#c6c6c7] to-[#b8b9ba] p-2 text-[#3f4041] transition-all hover:scale-105 disabled:opacity-50 disabled:hover:scale-100"
+            aria-label="Send message"
+            title="Send message"
+            className="rounded-xl bg-gradient-to-r from-[#c6c6c7] to-[#b8b9ba] p-2.5 text-[#3f4041] transition-all hover:scale-105 disabled:opacity-50 disabled:hover:scale-100"
           >
-            <Send size={20} />
+            <Send size={18} aria-hidden="true" />
           </button>
         </div>
         
